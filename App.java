@@ -13,6 +13,8 @@ public class App {
 
     public void executar() {
         int opcao;
+        List<Departamento> departamentos = Mock.carregarDepartamentos();
+        List<Funcionario> funcionarios = Mock.carregarFuncionarios(departamentos);
         do {
             System.out.println("SISTEMA DE PEDIDOS -- TRABALHO 1 GCS");
             menu();
@@ -23,8 +25,6 @@ public class App {
                 case 0:
                     break;
                 case 1:
-                    List<Departamento> departamentos = Mock.carregarDepartamentos();
-                    List<Funcionario> funcionarios = Mock.carregarFuncionarios(departamentos);
                     mudarUsuarioPorId(funcionarios);
                     break;
                 case 2:
@@ -40,7 +40,7 @@ public class App {
                     menuConsultaAdmin();
                     break;
                 case 6:
-                    //
+                    exibirEstatisticas();
                     break;
                 default:
                     System.out.println("Opcao invalida. Redigite, por favor.");
@@ -56,7 +56,7 @@ public class App {
         System.out.println("[3] Excluir pedido de aquisicao");
         System.out.println("[4] Avaliar pedido (Apenas Administrador)");
         System.out.println("[5] Consultar pedidos (Apenas Adminstrador)");
-        System.out.println("[6] ");
+        System.out.println("[6] Exibir estátisticas (Apenas Adminstradores)");
     }
 
     public void mudarUsuarioPorId(List<Funcionario> funcionarios) {
@@ -290,7 +290,7 @@ public class App {
         System.out.println("Valor médio dos últimos 30 dias: R$ " + media30);
 
         Optional<Pedido> maiorAberto = EstatisticasPedidos.pedidoMaiorValor(pedidos);
-        System.out.println("--- Maior Pedido Aberto (Pendente) ---");
+        System.out.println("Maior Pedido Aberto (Pendente)");
         if (maiorAberto.isPresent()) {
             System.out.println(maiorAberto.get());
         } else {

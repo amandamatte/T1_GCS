@@ -63,6 +63,6 @@ public class EstatisticasPedidos {
                 }
             }
         }
-        return Optional.ofNullable(maior);
+        return Optional.ofNullable(maior); //significa que o método tá retornando algo que pode ou não conter um valor não null
     }
 }
