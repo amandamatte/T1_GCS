@@ -82,6 +82,7 @@ public class App {
         System.out.print("Quantos itens deseja adicionar ao pedido? ");
         int quantidadeItens = entrada.nextInt();
         entrada.nextLine();
+        
         for (int i = 1; i <= quantidadeItens; i++) {
             System.out.println("Item " + i + ": ");
             System.out.print("Descrição do item/produto: ");
@@ -93,6 +94,18 @@ public class App {
             entrada.nextLine();
 
             itensDoPedido.add(new ItemPedido(descricaoItem, valorUnitario, quantidade));
+        }
+
+        double valorTotalNovoPedido = 0;
+        for (ItemPedido item : itensDoPedido) {
+            valorTotalNovoPedido += item.getValorTotalItem();
+        }
+
+        double limiteDepartamento = usuarioLogado.getDepartamento().getLimiteMaximoPedido();
+        if (valorTotalNovoPedido > limiteDepartamento) {
+            System.out.println("Erro: O valor total do pedido (R$ " + valorTotalNovoPedido + 
+                               ") excede o limite máximo permitido para o departamento (" + limiteDepartamento + "). Pedido cancelado.");
+            return;
         }
 
         Pedido pedidoCriado = new Pedido(proximoIdPedido, usuarioLogado, itensDoPedido);
@@ -137,7 +150,6 @@ public class App {
             System.out.println("Apenas administradores podem avaliar pedidos.");
             return;
         }
-        
 
         System.out.println("LISTA DE PEDIDOS PENDENTES");
         boolean temPendentes = false;
@@ -161,7 +173,6 @@ public class App {
         for (Pedido p : pedidos) {
             if (p.getId() == idPedido) {
                 pedidoAlvo = p;
-                p.toString();
                 break;
             }
         }
@@ -190,10 +201,11 @@ public class App {
             System.out.println("Pedido reprovado.");
         } else {
             System.out.println("Opção inválida.");
-        } }
+        } 
+    }
 
-        public void menuConsultaAdmin(){
-            System.out.println("MENU DE CONSULTAS (ADMINISTRADOR)");
+    public void menuConsultaAdmin(){
+        System.out.println("MENU DE CONSULTAS (ADMINISTRADOR)");
         System.out.println("[1] Listar pedidos entre duas datas");
         System.out.println("[2] Buscar pedidos por funcionário solicitante por ID");
         System.out.println("[3] Buscar pedidos por descrição de item");
@@ -203,68 +215,68 @@ public class App {
 
         switch (op) {
             case 1:
-            System.out.println("Digite a data inicial (AAAA-MM-DD): ");
-            LocalDate inicio = LocalDate.parse(entrada.nextLine());
-            System.out.print("Digite a data final (AAAA-MM-DD): ");
-            LocalDate fim = LocalDate.parse(entrada.nextLine());
+                System.out.println("Digite a data inicial (AAAA-MM-DD): ");
+                LocalDate inicio = LocalDate.parse(entrada.nextLine());
+                System.out.print("Digite a data final (AAAA-MM-DD): ");
+                LocalDate fim = LocalDate.parse(entrada.nextLine());
 
-            System.out.println("Pedidos entre " + inicio + " e " + fim);
-            boolean achou = false;
-            for (Pedido p : pedidos) {
-                if (!p.getDataPedido().isBefore(inicio) && !p.getDataPedido().isAfter(fim)) {
-                    System.out.println(p);
-                    achou = true;
+                System.out.println("Pedidos entre " + inicio + " e " + fim);
+                boolean achou = false;
+                for (Pedido p : pedidos) {
+                    if (!p.getDataPedido().isBefore(inicio) && !p.getDataPedido().isAfter(fim)) {
+                        System.out.println(p);
+                        achou = true;
+                    }
                 }
-            }
-            if (!achou) System.out.println("Nenhum pedido encontrado.");
+                if (!achou) System.out.println("Nenhum pedido encontrado.");
                 break;
 
             case 2: 
-            System.out.print("Digite o ID do funcionário solicitante: ");
-            int idFunc = entrada.nextInt();
-            entrada.nextLine();
+                System.out.print("Digite o ID do funcionário solicitante: ");
+                int idFunc = entrada.nextInt();
+                entrada.nextLine();
 
-            System.out.println("Pedidos do funcionário ID " + idFunc);
-            boolean achouID = false;
-            for (Pedido p : pedidos) {
-                if (p.getSolicitante().getId() == idFunc) {
-                    System.out.println(p);
-                    achouID = true;
-                }
-            }
-            if (!achouID) System.out.println("Nenhum pedido encontrado para este funcionário.");
-            break;
-
-            case 3:
-            System.out.print("Digite pelo menos uma palavra da descrição do item: ");
-            String termo = entrada.nextLine().toLowerCase();
-
-            System.out.println("Pedidos contendo a descrição:");
-            boolean achouItem = false;
-            for (Pedido p : pedidos) {
-                for (ItemPedido item : p.getItens()) {
-                    if (item.getDescricao().toLowerCase().contains(termo)) {
-                        System.out.println(p + " contém: " + item);
-                        achouItem = true;
-                        break;
+                System.out.println("Pedidos do funcionário ID " + idFunc);
+                boolean achouID = false;
+                for (Pedido p : pedidos) {
+                    if (p.getSolicitante().getId() == idFunc) {
+                        System.out.println(p);
+                        achouID = true;
                     }
                 }
-            }
-            if (!achouItem) System.out.println("Nenhum pedido encontrado.");
-            break;
+                if (!achouID) System.out.println("Nenhum pedido encontrado para este funcionário.");
+                break;
+
+            case 3:
+                System.out.print("Digite pelo menos uma palavra da descrição do item: ");
+                String termo = entrada.nextLine().toLowerCase();
+
+                System.out.println("Pedidos contendo a descrição:");
+                boolean achouItem = false;
+                for (Pedido p : pedidos) {
+                    for (ItemPedido item : p.getItens()) {
+                        if (item.getDescricao().toLowerCase().contains(termo)) {
+                            System.out.println(p + " contém: " + item);
+                            achouItem = true;
+                            break;
+                        }
+                    }
+                }
+                if (!achouItem) System.out.println("Nenhum pedido encontrado.");
+                break;
 
             default:
-            System.out.println("Opção inválida.");
+                System.out.println("Opção inválida.");
         } 
-        } 
+    }
 
-        public void exibirEstatisticas(){
-              if (usuarioLogado == null) {
+    public void exibirEstatisticas(){
+        if (usuarioLogado == null) {
             System.out.println("Não há usuário logado.");
             return;
         }
         if (usuarioLogado.getTipo() != TipoFuncionario.ADMINISTRADOR) {
-            System.out.println("Apenas administradores podem avaliar pedidos.");
+            System.out.println("Apenas administradores podem ver estatísticas.");
             return;
         }
 
@@ -275,9 +287,9 @@ public class App {
         double percAprovados = 0;
         double percReprovados = 0;
         if (total > 0) {
-        percAprovados = (double) aprovados / total * 100;
-        percReprovados = (double) reprovados / total * 100;
-       }
+            percAprovados = (double) aprovados / total * 100;
+            percReprovados = (double) reprovados / total * 100;
+        }
 
         System.out.println("ESTATÍSTICAS GERAIS");
         System.out.println("Total de Pedidos: " + total);
@@ -296,5 +308,5 @@ public class App {
         } else {
             System.out.println("Nenhum pedido aberto no momento.");
         }
-        }
     }
+}
