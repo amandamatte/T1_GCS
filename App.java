@@ -37,7 +37,7 @@ public class App {
                     avaliarPedidoAdmin(); 
                     break;
                 case 5:
-                    //
+                    menuConsultaAdmin();
                     break;
                 case 6:
                     //
@@ -54,8 +54,8 @@ public class App {
         System.out.println("[1] Mudar de usuario por ID");
         System.out.println("[2] Registrar um novo pedido de aquisicao");
         System.out.println("[3] Excluir pedido de aquisicao");
-        System.out.println("[4] Avaliar pedido (Apenas Administrador: Aprovar/Reprovar)");
-        System.out.println("[5] ");
+        System.out.println("[4] Avaliar pedido (Apenas Administrador)");
+        System.out.println("[5] Consultar pedidos (Apenas Adminstrador)");
         System.out.println("[6] ");
     }
 
@@ -98,7 +98,7 @@ public class App {
         Pedido pedidoCriado = new Pedido(proximoIdPedido, usuarioLogado, itensDoPedido);
         pedidos.add(pedidoCriado);
         
-        System.out.println("Pedido gerado com sucesso!");
+        System.out.println("Pedido gerado com sucesso.");
         proximoIdPedido++;
     }
 
@@ -137,8 +137,9 @@ public class App {
             System.out.println("Apenas administradores podem avaliar pedidos.");
             return;
         }
+        
 
-        System.out.println("\n--- LISTA DE PEDIDOS PENDENTES ---");
+        System.out.println("LISTA DE PEDIDOS PENDENTES");
         boolean temPendentes = false;
         for (Pedido p : pedidos) {
             if (p.getStatus() == StatusPedido.PENDENTE) {
@@ -150,9 +151,9 @@ public class App {
         if (!temPendentes) {
             System.out.println("Nenhum pedido pendente encontrado.");
             return;
-        }
+        } 
 
-        System.out.print("\nDigite o ID do pedido que deseja avaliar: ");
+        System.out.println("Digite o ID do pedido que deseja avaliar: ");
         int idPedido = entrada.nextInt();
         entrada.nextLine();
 
@@ -160,6 +161,7 @@ public class App {
         for (Pedido p : pedidos) {
             if (p.getId() == idPedido) {
                 pedidoAlvo = p;
+                p.toString();
                 break;
             }
         }
@@ -170,7 +172,7 @@ public class App {
         }
 
         if (pedidoAlvo.getStatus() != StatusPedido.PENDENTE) {
-            System.out.println("Este pedido já foi avaliado anteriormente.");
+            System.out.println("Este pedido já foi avaliado.");
             return;
         }
 
@@ -188,6 +190,71 @@ public class App {
             System.out.println("Pedido reprovado.");
         } else {
             System.out.println("Opção inválida.");
+        } }
+
+        public void menuConsultaAdmin(){
+            System.out.println("MENU DE CONSULTAS (ADMINISTRADOR)");
+        System.out.println("[1] Listar pedidos entre duas datas");
+        System.out.println("[2] Buscar pedidos por funcionário solicitante por ID");
+        System.out.println("[3] Buscar pedidos por descrição de item");
+        System.out.print("Escolha a opção de busca: ");
+        int op = entrada.nextInt();
+        entrada.nextLine();
+
+        switch (op) {
+            case 1:
+            System.out.println("Digite a data inicial (AAAA-MM-DD): ");
+            LocalDate inicio = LocalDate.parse(entrada.nextLine());
+            System.out.print("Digite a data final (AAAA-MM-DD): ");
+            LocalDate fim = LocalDate.parse(entrada.nextLine());
+
+            System.out.println("Pedidos entre " + inicio + " e " + fim);
+            boolean achou = false;
+            for (Pedido p : pedidos) {
+                if (!p.getDataPedido().isBefore(inicio) && !p.getDataPedido().isAfter(fim)) {
+                    System.out.println(p);
+                    achou = true;
+                }
+            }
+            if (!achou) System.out.println("Nenhum pedido encontrado.");
+                break;
+
+            case 2: 
+            System.out.print("Digite o ID do funcionário solicitante: ");
+            int idFunc = entrada.nextInt();
+            entrada.nextLine();
+
+            System.out.println("\n--- Pedidos do funcionário ID " + idFunc + " ---");
+            boolean achouID = false;
+            for (Pedido p : pedidos) {
+                if (p.getSolicitante().getId() == idFunc) {
+                    System.out.println(p);
+                    achouID = true;
+                }
+            }
+            if (!achouID) System.out.println("Nenhum pedido encontrado para este funcionário.");
+            break;
+
+            case 3:
+            System.out.print("Digite pelo menos uma palavra da descrição do item: ");
+            String termo = entrada.nextLine().toLowerCase();
+
+            System.out.println("Pedidos contendo a descrição:");
+            boolean achouItem = false;
+            for (Pedido p : pedidos) {
+                for (ItemPedido item : p.getItens()) {
+                    if (item.getDescricao().toLowerCase().contains(termo)) {
+                        System.out.println(p + " contém: " + item);
+                        achouItem = true;
+                        break;
+                    }
+                }
+            }
+            if (!achouItem) System.out.println("Nenhum pedido encontrado.");
+            break;
+
+            default:
+            System.out.println("Opção inválida.");
+        } 
         }
     }
-}
