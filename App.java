@@ -14,19 +14,13 @@ public class App {
     public void executar() {
         int opcao;
         do {
-            System.out.println("\n--- SISTEMA DE PEDIDOS -- TRABALHO 1 GCS ---");
-            if (usuarioLogado != null) {
-                System.out.println("Usuário atual: " + usuarioLogado.getNome() + " (" + usuarioLogado.getTipo() + ")");
-            } else {
-                System.out.println("Nenhum usuário logado.");
-            }
+            System.out.println("SISTEMA DE PEDIDOS -- TRABALHO 1 GCS");
             menu();
             System.out.print("Digite a opcao desejada: ");
             opcao = entrada.nextInt();
             entrada.nextLine();
             switch (opcao) {
                 case 0:
-                    System.out.println("Encerrando o sistema...");
                     break;
                 case 1:
                     List<Departamento> departamentos = Mock.carregarDepartamentos();
@@ -40,15 +34,13 @@ public class App {
                     excluirPedido();
                     break;
                 case 4:
-                    avaliarPedidoAdmin();
+                    avaliarPedidoAdmin(); 
                     break;
                 case 5:
-                 //(Buscas/Filtros)
-                    System.out.println("esperando implementação...");
+                    //
                     break;
                 case 6:
-                    //(Estatísticas)
-                    System.out.println("esperando implementação...");
+                    //
                     break;
                 default:
                     System.out.println("Opcao invalida. Redigite, por favor.");
@@ -61,20 +53,20 @@ public class App {
         System.out.println("[0] Sair");
         System.out.println("[1] Mudar de usuario por ID");
         System.out.println("[2] Registrar um novo pedido de aquisicao");
-        System.out.println("[3] Excluir pedido de aquisicao (Apenas o criador)");
+        System.out.println("[3] Excluir pedido de aquisicao");
         System.out.println("[4] Avaliar pedido (Apenas Administrador: Aprovar/Reprovar)");
-        System.out.println("[5] Consultas e Buscas (Camile)");
-        System.out.println("[6] Estatísticas Gerais (Camile)");
+        System.out.println("[5] ");
+        System.out.println("[6] ");
     }
 
     public void mudarUsuarioPorId(List<Funcionario> funcionarios) {
-        System.out.print("Digite o ID do funcionário: ");
+        System.out.println("Digite o ID: ");
         int id = entrada.nextInt();
         entrada.nextLine();
         for (Funcionario f : funcionarios) {
             if (f.getId() == id) {
                 usuarioLogado = f;
-                System.out.println("Usuário alterado com sucesso para: " + f.getNome());
+                System.out.println("Usuário atual: " + f.getNome());
                 return;
             }
         }
@@ -83,20 +75,18 @@ public class App {
 
     public void registrarPedido() {
         if (usuarioLogado == null) {
-            System.out.println("Erro: Não há usuário logado. Mude de usuário primeiro.");
+            System.out.println("Não há usuário logado.");
             return;
         }
-
         List<ItemPedido> itensDoPedido = new ArrayList<>();
         System.out.print("Quantos itens deseja adicionar ao pedido? ");
         int quantidadeItens = entrada.nextInt();
         entrada.nextLine();
-        
         for (int i = 1; i <= quantidadeItens; i++) {
-            System.out.println("--- Item " + i + " ---");
+            System.out.println("Item " + i + ": ");
             System.out.print("Descrição do item/produto: ");
             String descricaoItem = entrada.nextLine();
-            System.out.print("Valor unitário (R$): ");
+            System.out.print("Valor unitário: ");
             double valorUnitario = entrada.nextDouble();
             System.out.print("Quantidade: ");
             int quantidade = entrada.nextInt();
@@ -105,25 +95,16 @@ public class App {
             itensDoPedido.add(new ItemPedido(descricaoItem, valorUnitario, quantidade));
         }
 
-        Pedido pedidoTemp = new Pedido(proximoIdPedido, usuarioLogado, itensDoPedido);
-        double valorTotal = pedidoTemp.getValorTotalPedido();
-        double limiteDepartamento = usuarioLogado.getDepartamento().getLimiteMaximoPedido();
-
-        if (valorTotal > limiteDepartamento) {
-            System.out.println("Erro: O valor total do pedido (R$ " + valorTotal + 
-                               ") ultrapassa o limite máximo permitido pelo departamento " + 
-                               usuarioLogado.getDepartamento().getNome() + " (R$ " + limiteDepartamento + "). Pedido não cadastrado.");
-            return;
-        }
-
-        pedidos.add(pedidoTemp);
-        System.out.println("Pedido #" + proximoIdPedido + " registrado com sucesso!");
+        Pedido pedidoCriado = new Pedido(proximoIdPedido, usuarioLogado, itensDoPedido);
+        pedidos.add(pedidoCriado);
+        
+        System.out.println("Pedido gerado com sucesso!");
         proximoIdPedido++;
     }
 
     public void excluirPedido() {
         if (usuarioLogado == null) {
-            System.out.println("Erro: Não há usuário logado.");
+            System.out.println("Não há usuário logado.");
             return;
         }
 
@@ -134,15 +115,11 @@ public class App {
         for (Pedido pedido : pedidos) {
             if (pedido.getId() == idProcurado) {
                 if (pedido.getSolicitante().getId() == usuarioLogado.getId()) {
-                    if (pedido.getStatus() == StatusPedido.PENDENTE) {
-                        pedidos.remove(pedido);
-                        System.out.println("Pedido excluído com sucesso.");
-                    } else {
-                        System.out.println("Erro: Este pedido não está mais pendente e não pode ser excluído.");
-                    }
+                    pedidos.remove(pedido);
+                    System.out.println("Pedido excluído com sucesso.");
                     return; 
                 } else {
-                    System.out.println("Erro: Somente o funcionário que criou o pedido pode excluí-lo.");
+                    System.out.println("Apenas o funcionário que criou o pedido pode excluir.");
                     return;
                 }
             }
@@ -152,26 +129,26 @@ public class App {
 
     public void avaliarPedidoAdmin() {
         if (usuarioLogado == null) {
-            System.out.println("Erro: Não há usuário logado.");
+            System.out.println("Não há usuário logado.");
             return;
         }
 
         if (usuarioLogado.getTipo() != TipoFuncionario.ADMINISTRADOR) {
-            System.out.println("Erro: Somente funcionários administradores podem avaliar pedidos.");
+            System.out.println("Apenas administradores podem avaliar pedidos.");
             return;
         }
 
-        System.out.println("\n--- LISTA DE PEDIDOS ABERTOS (PENDENTES) ---");
-        boolean temAbertos = false;
+        System.out.println("\n--- LISTA DE PEDIDOS PENDENTES ---");
+        boolean temPendentes = false;
         for (Pedido p : pedidos) {
             if (p.getStatus() == StatusPedido.PENDENTE) {
                 System.out.println(p);
-                temAbertos = true;
+                temPendentes = true;
             }
         }
 
-        if (!temAbertos) {
-            System.out.println("Não há pedidos pendentes no momento.");
+        if (!temPendentes) {
+            System.out.println("Nenhum pedido pendente encontrado.");
             return;
         }
 
@@ -193,17 +170,8 @@ public class App {
         }
 
         if (pedidoAlvo.getStatus() != StatusPedido.PENDENTE) {
-            System.out.println("Erro: Este pedido já foi avaliado anteriormente (" + pedidoAlvo.getStatus() + ") e não pode ser alterado.");
+            System.out.println("Este pedido já foi avaliado anteriormente.");
             return;
-        }
-
-        System.out.println("Detalhes do Pedido:");
-        System.out.println("Solicitante: " + pedidoAlvo.getSolicitante().getNome());
-        System.out.println("Departamento: " + pedidoAlvo.getDepartamentoSolicitante().getNome());
-        System.out.println("Valor Total: R$ " + pedidoAlvo.getValorTotalPedido());
-        System.out.println("Itens:");
-        for (ItemPedido item : pedidoAlvo.getItens()) {
-            System.out.println(" - " + item);
         }
 
         System.out.print("Deseja [1] APROVAR ou [2] REPROVAR este pedido? ");
@@ -213,13 +181,13 @@ public class App {
         if (escolha == 1) {
             pedidoAlvo.setStatus(StatusPedido.APROVADO);
             pedidoAlvo.setDataConclusao(LocalDate.now());
-            System.out.println("Pedido aprovado com sucesso! Data de conclusão registrada.");
+            System.out.println("Pedido aprovado com sucesso!");
         } else if (escolha == 2) {
             pedidoAlvo.setStatus(StatusPedido.REPROVADO);
             pedidoAlvo.setDataConclusao(LocalDate.now());
             System.out.println("Pedido reprovado.");
         } else {
-            System.out.println("Opção inválida. Nenhuma alteração realizada.");
+            System.out.println("Opção inválida.");
         }
     }
 }
