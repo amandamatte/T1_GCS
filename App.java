@@ -224,7 +224,7 @@ public class App {
             int idFunc = entrada.nextInt();
             entrada.nextLine();
 
-            System.out.println("\n--- Pedidos do funcionário ID " + idFunc + " ---");
+            System.out.println("Pedidos do funcionário ID " + idFunc);
             boolean achouID = false;
             for (Pedido p : pedidos) {
                 if (p.getSolicitante().getId() == idFunc) {
@@ -256,5 +256,45 @@ public class App {
             default:
             System.out.println("Opção inválida.");
         } 
+        } 
+
+        public void exibirEstatisticas(){
+              if (usuarioLogado == null) {
+            System.out.println("Não há usuário logado.");
+            return;
+        }
+        if (usuarioLogado.getTipo() != TipoFuncionario.ADMINISTRADOR) {
+            System.out.println("Apenas administradores podem avaliar pedidos.");
+            return;
+        }
+
+        int total = EstatisticasPedidos.totalPedidos(pedidos);
+        int aprovados = EstatisticasPedidos.quantidadeAprovados(pedidos);
+        int reprovados = EstatisticasPedidos.quantidadeReprovados(pedidos);
+
+        double percAprovados = 0;
+        double percReprovados = 0;
+        if (total > 0) {
+        percAprovados = (double) aprovados / total * 100;
+        percReprovados = (double) reprovados / total * 100;
+       }
+
+        System.out.println("ESTATÍSTICAS GERAIS");
+        System.out.println("Total de Pedidos: " + total);
+        System.out.println("Aprovados: " + aprovados + " (" +  percAprovados + "%)");
+        System.out.println("Reprovados: " + reprovados + " (" + percReprovados + "%)");
+
+        List<Pedido> ultimos30 = EstatisticasPedidos.pedidos30Dias(pedidos);
+        double media30 = EstatisticasPedidos.valorMedio30Dias(pedidos);
+        System.out.println("Pedidos nos últimos 30 dias: " + ultimos30.size());
+        System.out.println("Valor médio dos últimos 30 dias: R$ " + media30);
+
+        Optional<Pedido> maiorAberto = EstatisticasPedidos.pedidoMaiorValor(pedidos);
+        System.out.println("--- Maior Pedido Aberto (Pendente) ---");
+        if (maiorAberto.isPresent()) {
+            System.out.println(maiorAberto.get());
+        } else {
+            System.out.println("Nenhum pedido aberto no momento.");
+        }
         }
     }
